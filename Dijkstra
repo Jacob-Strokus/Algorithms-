@@ -1,0 +1,84 @@
+package dijkstra;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map.Entry;
+
+import java.util.Set;
+
+/**
+ * Dijkstra's Algorithm: 
+ * 
+ * is an algorithm for finding the shortest paths between
+ * nodes in a graph, which may represent, for example, road networks. It was
+ * conceived by computer scientist Edsger W. Dijkstra in 1956 and published
+ * three years later.
+ * 
+ * @author Jacob Strokus
+ *
+ */
+public class Dijkstra {
+
+	/** Given the starting node (source) calculate the most direct path
+	 * @param graph - Graph Object
+	 * @param source - Starting Node
+	 * @return graph
+	 */
+	public static Graph calculateShortestPathFromSource(Graph graph, Node source) {
+
+		source.setDistance(0);
+
+		Set<Node> settledNodes = new HashSet<>();
+		Set<Node> unsettledNodes = new HashSet<>();
+		unsettledNodes.add(source);
+
+		while (unsettledNodes.size() != 0) {
+			Node currentNode = getLowestDistanceNode(unsettledNodes);
+			unsettledNodes.remove(currentNode);
+			for (Entry<Node, Integer> adjacencyPair : currentNode.getAdjacentNodes().entrySet()) {
+				Node adjacentNode = adjacencyPair.getKey();
+				Integer edgeWeigh = adjacencyPair.getValue();
+
+				if (!settledNodes.contains(adjacentNode)) {
+					CalculateMinimumDistance(adjacentNode, edgeWeigh, currentNode);
+					unsettledNodes.add(adjacentNode);
+				}
+			}
+			settledNodes.add(currentNode);
+		}
+		return graph;
+	}
+
+	/** Calculate the minimum distance to travel
+	 * @param evaluationNode - Node to be evaluated 
+	 * @param edgeWeigh - Integer representing the weight of adjacent Node
+	 * @param sourceNode - Starting Node
+	 */
+	private static void CalculateMinimumDistance(Node evaluationNode, Integer edgeWeigh, Node sourceNode) {
+		Integer sourceDistance = sourceNode.getDistance();
+		if (sourceDistance + edgeWeigh < evaluationNode.getDistance()) {
+			evaluationNode.setDistance(sourceDistance + edgeWeigh);
+			LinkedList<Node> shortestPath = new LinkedList<>(sourceNode.getShortestPath());
+			shortestPath.add(sourceNode);
+			evaluationNode.setShortestPath(shortestPath);
+		}
+	}
+
+	/** Calculate the best path to take given checked Nodes
+	 * @param unsettledNodes - Set of Nodes that have been checked 
+	 * @return lowest Node
+	 */
+	private static Node getLowestDistanceNode(Set<Node> unsettledNodes) {
+		Node lowestDistanceNode = null;
+		int lowestDistance = Integer.MAX_VALUE;
+		for (Node node : unsettledNodes) {
+			int nodeDistance = node.getDistance();
+			if (nodeDistance < lowestDistance) {
+				lowestDistance = nodeDistance;
+				lowestDistanceNode = node;
+			}
+		}
+		return lowestDistanceNode;
+	}
+
+}

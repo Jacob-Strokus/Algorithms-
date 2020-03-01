@@ -1,0 +1,79 @@
+/**
+ * Depth-first search is an algorithm for traversing or searching tree or graph
+ * data structures. The algorithm starts at the root node and explores as far as
+ * possible along each branch before backtracking.
+ * 
+ * @author Jacob Strokus
+ *
+ */
+public class DepthFirstSearch {
+
+	/**
+	 * If a path is found, this method will return true and the path list will be
+	 * filled ex: ( xn, yn, ...., x2, y2, x1 ,y1 ) recursively finds path.
+	 * 
+	 * @param m    - two dimensional array representing the maze
+	 * @param x    - x coordinate to start
+	 * @param y    - y coordinate to start
+	 * @param path - List of integers representing the path
+	 * @return true if path is found, otherwise return false
+	 */
+	public static boolean searchPath(int[][] m, int x, int y, List<Integer> path) {
+
+		/*
+		 * Check to see if target node has been reached
+		 */
+		if (m[y][x] == 9) {
+			path.add(x);
+			path.add(y);
+			return true;
+		}
+		
+		/*
+		 * When the current position (x,y) is a non-visited node (0), mark it was
+		 * visited (2)
+		 */
+		if (m[y][x] == 0) {
+			m[y][x] = 2;
+
+			/*
+			 * Visit all neighbor nodes recursively. If path is found, fill the path list
+			 * with current position
+			 */
+			int dx = -1;
+			int dy = 0;
+			if (searchPath(m, x + dx, y + dy, path)) {
+				path.add(x);
+				path.add(y);
+				return true;
+			}
+
+			dx = 1;
+			dy = 0;
+			if (searchPath(m, x + dx, y + dy, path)) {
+				path.add(x);
+				path.add(y);
+				return true;
+			}
+
+			dx = 0;
+			dy = -1;
+			if (searchPath(m, x + dx, y + dy, path)) {
+				path.add(x);
+				path.add(y);
+				return true;
+			}
+
+			dx = 0;
+			dy = 1;
+			if (searchPath(m, x + dx, y + dy, path)) {
+				path.add(x);
+				path.add(y);
+				return true;
+			}
+
+		}
+
+		return false;
+	}
+}

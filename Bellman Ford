@@ -1,0 +1,233 @@
+import java.util.HashMap;
+import java.util.Scanner;
+
+/**
+ * The Bellman–Ford algorithm is an algorithm that computes shortest paths from
+ * a single source vertex to all of the other vertices in a weighted graph. It
+ * is slower than Dijkstra's algorithm for the same problem, but more versatile,
+ * as it is capable of handling graphs in which some of the edge weights are
+ * negative numbers. Dijkstra doesn't work for Graphs with negative weight
+ * edges, Bellman-Ford works for such graphs. Bellman-Ford is also simpler than
+ * Dijkstra and suites well for distributed systems.
+ * 
+ * This algorithms time complexity runs in O( V * E) (Worst Case) where V is the
+ * number of vertices in a dataSet and where E is the number of edges in a
+ * dataSet.
+ * 
+ * @author Jacob Strokus
+ *
+ */
+public class BellmanFord {
+
+	/**
+	 * Nested anonymous inner-class to create Edge objects to support the above
+	 * algorithm class.
+	 * 
+	 * @author Jacob Strokus
+	 *
+	 */
+	public static class edge {
+
+		/**
+		 * Integer representing the edge name (Identifier).
+		 */
+		int u;
+
+		/**
+		 * Integer representing the number of vertices.
+		 */
+		int v;
+
+		/**
+		 * Constructor to create Edge objects.
+		 * 
+		 * @param u Edge name.
+		 * @param v Number of vertices.
+		 */
+		public edge(int u, int v) {
+			this.u = u;
+			this.v = v;
+		}
+
+		/**
+		 * String literal representation of data found within the Edge Object's dataSet.
+		 */
+		public String toString() {
+			return this.u + " " + this.v;
+		}
+	}
+
+	/**
+	 * Nested anonymous inner-class to create Node objects to support the above
+	 * algorithm class.
+	 * 
+	 * @author Jacob Strokus
+	 *
+	 */
+	public static class Node {
+
+		/**
+		 * Integer representing a value a Node Object carries.
+		 */
+		int val;
+
+		/**
+		 * Integer representing a distance (source) that the Node Object carries.
+		 */
+		int dist;
+
+		/**
+		 * String literal representing the path a node holds.
+		 */
+		String path;
+
+		/**
+		 * Constructor to create Node Objects.
+		 * 
+		 * @param val  Value a Node Object carries.
+		 * @param dist Distance (Source) that the Node Object carries.
+		 * @param path Path a node holds.
+		 */
+		public Node(int val, int dist, String path) {
+			this.val = val;
+			this.dist = dist;
+			this.path = path;
+		}
+
+		/**
+		 * String literal representation of data found within the Node Object's dataSet.
+		 */
+		public String toString() {
+			return "Distance of " + this.val + " from source is " + this.dist + " and path followed is " + this.path;
+		}
+
+	}
+
+	/**
+	 * Controls the flow of the program. Used for testing purposes.
+	 * 
+	 * @param args Command-line arguments supplied as an Array of String Objects.
+	 */
+	public static void main(String[] args) {
+		Scanner scan = new Scanner(System.in);
+
+		int nodes = 0;
+		int numEdges = 0;
+
+		nodes = Integer.parseInt(args[0]); // for command line input
+		int[][] graph = new int[nodes + 1][nodes + 1];
+		numEdges = Integer.parseInt(args[1]); // for command line input
+
+		for (int edge = 0; edge < numEdges; edge++) {
+
+			System.out.println("Enter Edge identifier #" + edge + ": ");
+			int u = scan.nextInt();
+
+			System.out.println("Enter vertices #" + edge + ": ");
+			int v = scan.nextInt();
+
+			System.out.println("Enter weight for current Edge: ");
+			int weight = scan.nextInt();
+
+			graph[u][v] = weight;
+		}
+
+		bellmanford(scan.nextInt(), nodes, numEdges, graph);
+
+		scan.close(); // prevent data leakage.
+	}
+
+	/**
+	 * Method to collect and return an Array of Edges. This method runs in O(n^2)
+	 * time.
+	 * 
+	 * @param numEdges Number of edges.
+	 * @param graph    Matrix representing a Graph.
+	 * @return An Array of Edges.
+	 */
+	public static edge[] getEdges(int numEdges, int[][] graph) {
+		edge[] edgeList = new edge[numEdges];
+
+		int index = 0;
+		for (int u = 1; u < graph.length && index < edgeList.length; u++) {
+
+			for (int v = 1; v < graph[u].length && index < edgeList.length; v++) {
+
+				edgeList[index] = new edge(u, v);
+
+				index = graph[u][v] != 0 ? index + 1 : index;
+			}
+		}
+
+		return edgeList;
+
+	}
+
+	/**
+	 * Run the Bellman Ford algorithm with the data provided.
+	 * 
+	 * @param source Integer representing the source.
+	 * @param nodes  Integer representing the number of nodes.
+	 * @param edges  Integer representing the number of edges.
+	 * @param graph  Integer Matrix to represent the graph.
+	 */
+	public static void bellmanford(int source, int nodes, int edges, int[][] graph) {
+
+		HashMap<Integer, Node> nodesMap = new HashMap<>();
+
+		for (int i = 1; i < graph.length; i++) {
+			/*
+			 * Initialize the shortest distance of the every vertex equal to Infinity as for
+			 * this vertex the shortest distance is yet to be calculated, and initialize an
+			 * empty path. But if the vertex is source vertex itself, then the shortest
+			 * distance for it will be 0 and path will be initialized with vertex name.
+			 */
+			nodesMap.put(i, new Node(i, i == source ? 0 : (int) 1e9 + 1, i == source ? Integer.toString(i) : ""));
+		}
+
+		/* Outer loop will run for vertices - 1 times */
+		for (int var = 1; var <= nodes - 1; var++) {
+			/*
+			 * Running inner loop on the Array of edges returned from getEdges function.
+			 */
+			for (edge e : getEdges(edges, graph)) {
+				Node u = nodesMap.get(e.u);
+				Node v = nodesMap.get(e.v);
+
+				/*
+				 * The basic condition for use of updating the shortest distance of any node as
+				 * mentioned in the above.
+				 */
+				if (v.dist > u.dist + graph[u.val][v.val]) {
+					v.dist = u.dist + graph[u.val][v.val];
+					v.path = u.path + "->" + Integer.toString(v.val);
+				}
+			}
+		}
+
+		/*
+		 * One more loop in the random set of edges to detect if there is any negative
+		 * cycle.
+		 */
+		for (edge e : getEdges(edges, graph)) {
+			Node u = nodesMap.get(e.u);
+			Node v = nodesMap.get(e.v);
+
+			/*
+			 * At this point if we still are able to find shorter distances there is a
+			 * negative cycle -- The program will end but is cool because we were able to
+			 * detect the negative cycle.
+			 */
+			if (v.dist > u.dist + graph[u.val][v.val]) {
+				System.err.println("Negative Cycle Detected.");
+				return;
+			}
+		}
+
+		for (int node : nodesMap.keySet()) {
+			System.out.println(nodesMap.get(node));
+		}
+
+	}
+
+}
